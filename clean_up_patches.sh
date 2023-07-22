@@ -10,6 +10,7 @@ projects () {
 	git reset --hard $LAST_COMMIT >/dev/null
 	git clean -d -f -x
 	cd ${ROOT_DIR}/${PATCH_DIR}
+	rm ${proj}/.lastcommit
 }
 	
 for proj in `find . -type f -name '*.lastcommit' | sed -r 's|/[^/]+$||' |sort |uniq`
