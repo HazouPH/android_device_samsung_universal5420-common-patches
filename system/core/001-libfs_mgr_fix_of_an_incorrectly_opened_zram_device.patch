@@ -1,0 +1,26 @@
+From 678e5a58ca7b1b61a31edc562bfb4ce7b700f524 Mon Sep 17 00:00:00 2001
+From: usernameComputer01 <gpmbox01@gmail.com>
+Date: Sat, 4 Mar 2023 11:00:35 +0300
+Subject: [PATCH] libfs_mgr: Fix of an incorrectly opened ZRAM device.
+
+The "max_comp_streams" parameter in the "fstab" file is not taken into account when forming a zram file, since the file is open for reading(re). It is necessary to open the file for writing (re+).
+Fixing this bug improves performance on devices with zram support in the kernel.
+
+Change-Id: Idcd45a2b019f80393c83a12d647a1c00dcd56dca
+---
+ fs_mgr/fs_mgr.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs_mgr/fs_mgr.cpp b/fs_mgr/fs_mgr.cpp
+index f2d34c7113d7..75c6b7fce3ec 100644
+--- a/fs_mgr/fs_mgr.cpp
++++ b/fs_mgr/fs_mgr.cpp
+@@ -1611,7 +1611,7 @@ bool fs_mgr_swapon_all(const Fstab& fstab) {
+             // we can assume the device number is 0.
+             if (entry.max_comp_streams >= 0) {
+                 auto zram_mcs_fp = std::unique_ptr<FILE, decltype(&fclose)>{
+-                        fopen(ZRAM_CONF_MCS, "re"), fclose};
++                        fopen(ZRAM_CONF_MCS, "re+"), fclose};
+                 if (zram_mcs_fp == nullptr) {
+                     LERROR << "Unable to open zram conf comp device " << ZRAM_CONF_MCS;
+                     ret = false;

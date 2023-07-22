@@ -1,0 +1,44 @@
+From d309065cfabf29b40dba37cf4d477f8bbd231ad4 Mon Sep 17 00:00:00 2001
+From: fwg-cag <Manager@etw.de>
+Date: Sun, 7 Feb 2021 16:28:20 +0100
+Subject: [PATCH] Enable syncing of pre-Epoch recuring events
+
+* e.g. to allow birthday reminders for per-1970 born people
+
+Change-Id: I4f3623fba81b61d2ae6c3ecb15be463489b039af
+---
+ src/com/android/exchange/adapter/CalendarSyncParser.java | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/com/android/exchange/adapter/CalendarSyncParser.java b/src/com/android/exchange/adapter/CalendarSyncParser.java
+index 1216e51d..f4ef2909 100644
+--- a/src/com/android/exchange/adapter/CalendarSyncParser.java
++++ b/src/com/android/exchange/adapter/CalendarSyncParser.java
+@@ -102,6 +102,9 @@ public class CalendarSyncParser extends AbstractSyncParser {
+     // TODO Find a better solution to this workaround
+     private static final int MAX_OPS_BEFORE_EXCEPTION_ATTENDEE_REDACTION = 500;
+ 
++    // Any start time higher than INVALID_START_TIME is acceptable for recuring events
++    private static final long INVALID_START_TIME = Long.MIN_VALUE;
++
+     public CalendarSyncParser(final Context context, final ContentResolver resolver,
+             final InputStream in, final Mailbox mailbox, final Account account,
+             final android.accounts.Account accountManagerAccount,
+@@ -287,7 +290,7 @@ private static void addOrganizerToAttendees(CalendarOperations ops, long eventId
+     /*package*/ void setTimeRelatedValues(ContentValues cv, long startTime, long endTime,
+             int allDayEvent) {
+         // If there's no startTime, the event will be found to be invalid, so return
+-        if (startTime < 0) return;
++        if (startTime == INVALID_START_TIME) return;
+         // EAS events can arrive without an end time, but CalendarProvider requires them
+         // so we'll default to 30 minutes; this will be superceded if this is an all-day event
+         if (endTime < 0) endTime = startTime + (30 * DateUtils.MINUTE_IN_MILLIS);
+@@ -354,7 +357,7 @@ public void addEvent(CalendarOperations ops, String serverId, boolean update)
+ 
+         boolean firstTag = true;
+         long eventId = -1;
+-        long startTime = -1;
++        long startTime = INVALID_START_TIME; // To be able to accept also start times before Epoch
+         long endTime = -1;
+         TimeZone timeZone = null;
+ 
