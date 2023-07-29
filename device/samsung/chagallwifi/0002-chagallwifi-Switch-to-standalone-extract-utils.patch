@@ -1,0 +1,142 @@
+From 583e35179398abcb807b953dd24052f7cba54859 Mon Sep 17 00:00:00 2001
+From: Michael Bestas <mkbestas@lineageos.org>
+Date: Sat, 19 Dec 2020 02:53:35 +0200
+Subject: [PATCH 2/4] chagallwifi: Switch to standalone extract utils
+
+* Align with templates while we are at it
+
+Change-Id: Ife50623a3d1b8733f5cc76995c982d8950d39ad4
+---
+ extract-files.sh   | 31 ++++++++++---------------------
+ setup-makefiles.sh | 24 +++++++-----------------
+ 2 files changed, 17 insertions(+), 38 deletions(-)
+
+diff --git a/extract-files.sh b/extract-files.sh
+index 82676f8..159e7d0 100755
+--- a/extract-files.sh
++++ b/extract-files.sh
+@@ -1,40 +1,30 @@
+ #!/bin/bash
+ #
+-# Copyright (C) 2018-2019 The LineageOS Project
++# Copyright (C) 2018-2021 The LineageOS Project
+ #
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
++# SPDX-License-Identifier: Apache-2.0
+ #
+ 
+ set -e
+ 
+-VENDOR=samsung
+ DEVICE=chagallwifi
++VENDOR=samsung
+ 
+ # Load extract_utils and do some sanity checks
+ MY_DIR="${BASH_SOURCE%/*}"
+ if [[ ! -d "${MY_DIR}" ]]; then MY_DIR="${PWD}"; fi
+ 
+-LINEAGE_ROOT="${MY_DIR}"/../../..
++ANDROID_ROOT="${MY_DIR}/../../.."
+ 
+-HELPER="${LINEAGE_ROOT}/vendor/lineage/build/tools/extract_utils.sh"
++HELPER="${ANDROID_ROOT}/tools/extract-utils/extract_utils.sh"
+ if [ ! -f "${HELPER}" ]; then
+     echo "Unable to find helper script at ${HELPER}"
+     exit 1
+ fi
+ source "${HELPER}"
+ 
+-SECTION=
+-KANG=
++# Default to sanitizing the vendor folder before extraction
++CLEAN_VENDOR=true
+ 
+ while [ "${#}" -gt 0 ]; do
+     case "${1}" in
+@@ -60,13 +50,12 @@ if [ -z "${SRC}" ]; then
+ fi
+ 
+ # Initialize the helper
+-setup_vendor "${DEVICE}" "${VENDOR}" "${LINEAGE_ROOT}" true "${CLEAN_VENDOR}"
++setup_vendor "${DEVICE}" "${VENDOR}" "${ANDROID_ROOT}" false "${CLEAN_VENDOR}"
+ 
+-extract "${MY_DIR}/proprietary-files.txt" "${SRC}" \
+-        "${KANG}" --section "${SECTION}"
++extract "${MY_DIR}/proprietary-files.txt" "${SRC}" "${KANG}" --section "${SECTION}"
+ 
+ # Fix proprietary blobs
+-BLOB_ROOT="$LINEAGE_ROOT"/vendor/"$VENDOR"/"$DEVICE"/proprietary
++BLOB_ROOT="$ANDROID_ROOT"/vendor/"$VENDOR"/"$DEVICE"/proprietary
+ 
+ # Vendor separation
+ sed -i "s|system/etc|vendor/etc|g" $BLOB_ROOT/vendor/lib/libfloatingfeature.so
+diff --git a/setup-makefiles.sh b/setup-makefiles.sh
+index 14ac3e3..051acb4 100755
+--- a/setup-makefiles.sh
++++ b/setup-makefiles.sh
+@@ -1,24 +1,14 @@
+ #!/bin/bash
+ #
+-# Copyright (C) 2017-2019 The LineageOS Project
++# Copyright (C) 2017-2021 The LineageOS Project
+ #
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
++# SPDX-License-Identifier: Apache-2.0
+ #
+ 
+ set -e
+ 
+-VENDOR=samsung
+ DEVICE=chagallwifi
++VENDOR=samsung
+ 
+ export INITIAL_COPYRIGHT_YEAR=2017
+ 
+@@ -26,9 +16,9 @@ export INITIAL_COPYRIGHT_YEAR=2017
+ MY_DIR="${BASH_SOURCE%/*}"
+ if [[ ! -d "${MY_DIR}" ]]; then MY_DIR="${PWD}"; fi
+ 
+-LINEAGE_ROOT="${MY_DIR}/../../.."
++ANDROID_ROOT="${MY_DIR}/../../.."
+ 
+-HELPER="${LINEAGE_ROOT}/vendor/lineage/build/tools/extract_utils.sh"
++HELPER="${ANDROID_ROOT}/tools/extract-utils/extract_utils.sh"
+ if [ ! -f "${HELPER}" ]; then
+     echo "Unable to find helper script at ${HELPER}"
+     exit 1
+@@ -36,10 +26,10 @@ fi
+ source "${HELPER}"
+ 
+ # Initialize the helper
+-setup_vendor "${DEVICE}" "${VENDOR}" "${LINEAGE_ROOT}"
++setup_vendor "${DEVICE}" "${VENDOR}" "${ANDROID_ROOT}"
+ 
+ # Copyright headers and guards
+-write_headers "chagallwifi"
++write_headers
+ 
+ # The standard blobs
+ write_makefiles "${MY_DIR}/proprietary-files.txt" true
+-- 
+2.34.1
+

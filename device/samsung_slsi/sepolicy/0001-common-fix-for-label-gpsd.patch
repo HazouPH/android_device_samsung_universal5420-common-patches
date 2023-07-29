@@ -1,0 +1,30 @@
+From 2b8ff417bed61b3d886814bc12c225ef2fcfda94 Mon Sep 17 00:00:00 2001
+From: garak <elim.garak.dev@gmail.com>
+Date: Fri, 12 Aug 2022 20:28:08 +0200
+Subject: [PATCH] common: fix for label gpsd
+
+Some devices have gpsd in a different location. Let's modify the path to avoid error messages in the logs.
+
+08-12 20:11:06.880     0     0 E [B3:            init:     1] init: File /vendor/bin/gpsd (labeled "u:object_r:vendor_file:s0") has incorrect label or no domain transition from u:r:init:s0 to another SELinux domain defined. Have you configured your service correctly? https://source.android.com/security/selinux/device-policy#label_new_services_and_address_denials
+
+Change-Id: Ia017af4fc0923b9e0d755e6c7d08ddb98b1ea4b8
+---
+ common/vendor/file_contexts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/common/vendor/file_contexts b/common/vendor/file_contexts
+index bdfefce..f453918 100644
+--- a/common/vendor/file_contexts
++++ b/common/vendor/file_contexts
+@@ -121,7 +121,7 @@
+ /(vendor|system/vendor)/bin/cbd              u:object_r:cbd_exec:s0
+ /(vendor|system/vendor)/bin/secril_config_svc    u:object_r:secril_config_svc_exec:s0
+ 
+-/(vendor|system/vendor)/bin/hw/gpsd              u:object_r:gpsd_exec:s0
++/(vendor|system/vendor)/bin/(hw/)?gpsd           u:object_r:gpsd_exec:s0
+ /(vendor|system/vendor)/bin/hw/lhd               u:object_r:lhd_exec:s0
+ /(vendor|system/vendor)/bin/hw/macloader         u:object_r:macloader_exec:s0
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,39 @@
+From 993f7dcaaf14c369aaa6fee69eb247c00133c73f Mon Sep 17 00:00:00 2001
+From: garak <elim.garak.dev@gmail.com>
+Date: Fri, 12 Aug 2022 23:48:29 +0200
+Subject: [PATCH 4/4] chagallwifi: update shim name for gpsd
+
+---
+ BoardConfig.mk | 2 +-
+ device.mk      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 2b89b85..3306dd7 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -37,7 +37,7 @@ BOARD_FLASH_BLOCK_SIZE := 4096
+ 
+ # Shims
+ TARGET_LD_SHIM_LIBS += \
+-    /vendor/bin/gpsd|/vendor/lib/libshim_gps.so
++    /vendor/bin/gpsd|/vendor/lib/libshim_gpsd.so
+ 
+ # Inherit from the proprietary version
+ include vendor/samsung/chagallwifi/BoardConfigVendor.mk
+diff --git a/device.mk b/device.mk
+index 06d4809..91bbceb 100644
+--- a/device.mk
++++ b/device.mk
+@@ -28,7 +28,7 @@ PRODUCT_PACKAGES += \
+ 
+ # Shims
+ PRODUCT_PACKAGES += \
+-    libshim_gps
++    libshim_gpsd
+ 
+ # Vendor security patch level
+ PRODUCT_PROPERTY_OVERRIDES += \
+-- 
+2.34.1
+

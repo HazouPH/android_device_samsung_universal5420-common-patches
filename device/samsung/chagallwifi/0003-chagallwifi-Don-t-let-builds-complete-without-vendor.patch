@@ -1,0 +1,40 @@
+From ce8e931c90476457354b87c37e73412b42dd96fc Mon Sep 17 00:00:00 2001
+From: "Kevin F. Haggerty" <haggertk@lineageos.org>
+Date: Fri, 9 Apr 2021 08:18:37 -0600
+Subject: [PATCH 3/4] chagallwifi: Don't let builds complete without vendor
+ tree
+
+* There is zero reason to ever build without blobs. We've even seen
+  this situation with official builds from our servers. It's always
+  better for a build to fail than it is for it to produce something
+  that has no chance at working.
+
+Change-Id: I4968795670c91f691e9ecdc0e4af62e16ba3a93a
+---
+ BoardConfig.mk | 2 +-
+ device.mk      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index a958f6a..2b89b85 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -40,4 +40,4 @@ TARGET_LD_SHIM_LIBS += \
+     /vendor/bin/gpsd|/vendor/lib/libshim_gps.so
+ 
+ # Inherit from the proprietary version
+--include vendor/samsung/chagallwifi/BoardConfigVendor.mk
++include vendor/samsung/chagallwifi/BoardConfigVendor.mk
+diff --git a/device.mk b/device.mk
+index d610cbb..06d4809 100644
+--- a/device.mk
++++ b/device.mk
+@@ -41,4 +41,4 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ $(call inherit-product, device/samsung/chagall-common/device-common.mk)
+ 
+ # call the proprietary setup
+-$(call inherit-product-if-exists, vendor/samsung/chagallwifi/chagallwifi-vendor.mk)
++$(call inherit-product, vendor/samsung/chagallwifi/chagallwifi-vendor.mk)
+-- 
+2.34.1
+
