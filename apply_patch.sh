@@ -35,21 +35,20 @@ projects () {
 	if [ $? -eq 0 ]
 	then
 		echo "Applying patches under ${proj}..."
+		if [ -e ${ROOT_DIR}/${proj} ]
+		then
+			cd ${ROOT_DIR}/${proj}
+			# log last commit
+			if [ ! -f ${PATCH_DIR}/${proj}/.lastcommit ]
+			then
+				git rev-parse --short HEAD > ${PATCH_DIR}/${proj}/.lastcommit
+			fi
+		else
+			echo "no source code, skip dir: ${ROOT_DIR}/${proj}"
+			break
+		fi
 		for patch_name in `ls ${PATCH_DIR}/${proj} --ignore-backups --ignore="*.bk"`
 		do
-			if [ -e ${ROOT_DIR}/${proj} ]
-			then
-				cd ${ROOT_DIR}/${proj}
-				# log last commit
-				if [ ! -f ${PATCH_DIR}/${proj}/.lastcommit ]
-				then
-					git rev-parse --short HEAD > ${PATCH_DIR}/${proj}/.lastcommit
-				fi
-			else
-				echo "no source code, skip dir: ${ROOT_DIR}/${proj}"
-				break
-			fi
-
 			patch=${PATCH_DIR}/${proj}/${patch_name}
 			change_id=`grep -w "^Change-Id:" ${patch} | awk '{print $2}'`
 			ret=`git --no-pager log --format=format:%H -1 --grep "Change-Id: ${change_id}"`
