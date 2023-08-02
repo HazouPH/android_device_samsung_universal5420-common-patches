@@ -56,28 +56,35 @@ projects () {
 			then
 				echo "Applying ${proj}:${patch_name}"
 				git am -k -3 --ignore-space-change --ignore-whitespace ${patch}
-			if [ $? -ne 0 ]
-			then
+				if [ $? -ne 0 ]
+				then
 					echo "Failed at ${proj}"
 					echo "Abort..."
 					git am --abort
-					FAILED=true
-					exit
+					exit 1
 				fi
 			else
 				echo "Applied ${proj}:${patch_name}, ignore and continue..."
-			fi 
+			fi
 		done
 	fi
 	cd ${PATCH_DIR}
 }
 
+pids=()
 for proj in `find . -type f -name '*.patch' | sed -r 's|/[^/]+$||' |sort |uniq` 
 do
-	projects ${proj} &
+	projects ${proj} & pids+=($!)
 done
 
-wait
+# wait and check return code
+for pid in ${pids[*]}; do
+    wait $pid
+    if [ $? -eq 1 ]
+    then
+		FAILED=true
+    fi
+done
 
 # All went well, disable the show-stopper Makefile
 if [ "$FAILED" = false ];
