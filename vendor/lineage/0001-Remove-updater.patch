@@ -1,0 +1,32 @@
+From f4117074f5e4627d87ee9e5c8d0898050ab0091e Mon Sep 17 00:00:00 2001
+From: HazouPH <¨jgrharbers@gmail.com¨>
+Date: Wed, 2 Aug 2023 21:40:21 +0200
+Subject: [PATCH] Remove updater
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This ROM won´t use it.
+
+Change-Id: Ic19592e9c88dcff8d350b18c7a144b708068fa78
+---
+ config/common.mk | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index 2fe9cb01..f81e752f 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -113,8 +113,7 @@ PRODUCT_PACKAGES += \
+ PRODUCT_PACKAGES += \
+     LineageParts \
+     LineageSettingsProvider \
+-    LineageSetupWizard \
+-    Updater
++    LineageSetupWizard
+ 
+ # Themes
+ PRODUCT_PACKAGES += \
+-- 
+2.34.1
+

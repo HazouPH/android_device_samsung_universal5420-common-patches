@@ -1,0 +1,27 @@
+From 9c7514270a31cb054f05a9312e6ddcb39689d0b4 Mon Sep 17 00:00:00 2001
+From: HazouPH <¨jgrharbers@gmail.com¨>
+Date: Wed, 2 Aug 2023 21:37:24 +0200
+Subject: [PATCH] Add network stack permission
+
+Patch by: https://github.com/Flamefire/android_device_sony_yoshino-common
+
+Change-Id: I58af583525fe6488c316783d0b9c7f1852c39d5a
+---
+ AndroidManifest.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 5dcf27e..ad41896 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -41,6 +41,7 @@
+     <uses-permission android:name="android.permission.READ_DEVICE_CONFIG" />
+     <!-- Signature permission defined in NetworkStackStub -->
+     <uses-permission android:name="android.permission.MAINLINE_NETWORK_STACK" />
++    <uses-permission android:name="android.permission.NETWORK_STACK" />
+     <application
+         android:extractNativeLibs="false"
+         android:persistent="true">
+-- 
+2.34.1
+
