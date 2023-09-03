@@ -1,4 +1,4 @@
-From fc759b01ead505ad838c1094bba4d2d3b79ea756 Mon Sep 17 00:00:00 2001
+From 6b01d3816c25cc0142f2c8f525270244c8dfc498 Mon Sep 17 00:00:00 2001
 From: Beverly <beverlyt@google.com>
 Date: Mon, 8 May 2023 16:33:12 +0000
 Subject: [PATCH] On device lockdown, always show the keyguard
@@ -22,10 +22,10 @@ Change-Id: I9a7c5e1acadabd4484e58573331f98dba895f2a2
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java b/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
-index e21b14dec0b..a7d5c64dd3a 100644
+index f025575623ca3..cd02fe9a6c2d1 100644
 --- a/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
 +++ b/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
-@@ -556,6 +556,13 @@ public class KeyguardViewMediator extends SystemUI {
+@@ -556,6 +556,13 @@ public void onHasLockscreenWallpaperChanged(boolean hasLockscreenWallpaper) {
                  notifyHasLockscreenWallpaperChanged(hasLockscreenWallpaper);
              }
          }
@@ -39,7 +39,7 @@ index e21b14dec0b..a7d5c64dd3a 100644
      };
  
      ViewMediatorCallback mViewMediatorCallback = new ViewMediatorCallback() {
-@@ -1319,7 +1326,8 @@ public class KeyguardViewMediator extends SystemUI {
+@@ -1319,7 +1326,8 @@ private void doKeyguardLocked(Bundle options) {
          }
  
          // if another app is disabling us, don't show
@@ -49,6 +49,4 @@ index e21b14dec0b..a7d5c64dd3a 100644
              if (DEBUG) Log.d(TAG, "doKeyguard: not showing because externally disabled");
  
              mNeedToReshowWhenReenabled = true;
--- 
-2.34.1
 

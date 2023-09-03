@@ -1,8 +1,8 @@
-From dc3a077100292f4ed4353243c42f15e2419d6516 Mon Sep 17 00:00:00 2001
+From ae64c7b601dfe388dde0fb443d32025e48a9f259 Mon Sep 17 00:00:00 2001
 From: Chandru S <chandruis@google.com>
 Date: Tue, 16 May 2023 10:41:07 -0700
-Subject: [PATCH 2/5] Use Settings.System.getIntForUser instead of getInt to
- make sure user specific settings are used
+Subject: [PATCH] Use Settings.System.getIntForUser instead of getInt to make
+ sure user specific settings are used
 
 Bug: 265431505
 Test: atest KeyguardViewMediatorTest
@@ -15,10 +15,10 @@ Change-Id: I66a660c091c90a957a0fd1e144c013840db3f47e
  1 file changed, 8 insertions(+), 5 deletions(-)
 
 diff --git a/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java b/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
-index f025575623c..e21b14dec0b 100644
+index cd02fe9a6c2d..a7d5c64dd3a3 100644
 --- a/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
 +++ b/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
-@@ -906,9 +906,9 @@ public class KeyguardViewMediator extends SystemUI {
+@@ -913,9 +913,9 @@ private long getLockTimeout(int userId) {
          final ContentResolver cr = mContext.getContentResolver();
  
          // From SecuritySettings
@@ -30,7 +30,7 @@ index f025575623c..e21b14dec0b 100644
  
          // From DevicePolicyAdmin
          final long policyTimeout = mLockPatternUtils.getDevicePolicyManager()
-@@ -920,8 +920,8 @@ public class KeyguardViewMediator extends SystemUI {
+@@ -927,8 +927,8 @@ private long getLockTimeout(int userId) {
              timeout = lockAfterTimeout;
          } else {
              // From DisplaySettings
@@ -41,7 +41,7 @@ index f025575623c..e21b14dec0b 100644
  
              // policy in effect. Make sure we don't go beyond policy limit.
              displayTimeout = Math.max(displayTimeout, 0); // ignore negative values
-@@ -1754,7 +1754,10 @@ public class KeyguardViewMediator extends SystemUI {
+@@ -1762,7 +1762,10 @@ private void playSounds(boolean locked) {
      private void playSound(int soundId) {
          if (soundId == 0) return;
          final ContentResolver cr = mContext.getContentResolver();
@@ -53,6 +53,4 @@ index f025575623c..e21b14dec0b 100644
  
              mLockSounds.stop(mLockSoundStreamId);
              // Init mAudioManager
--- 
-2.34.1
 

@@ -1,7 +1,7 @@
-From 5f64abc0bc2b6bb2f580456ab65d034a5e9e52b0 Mon Sep 17 00:00:00 2001
+From 472e31eaf49c335e1ac8d1033fdf0d4aaf826813 Mon Sep 17 00:00:00 2001
 From: Michael Mikhail <michaelmikhil@google.com>
 Date: Fri, 28 Apr 2023 16:17:16 +0000
-Subject: [PATCH 3/5] Verify URI permissions in MediaMetadata
+Subject: [PATCH] Verify URI permissions in MediaMetadata
 
 Add a check for URI permission to make sure that user can access the URI
 set in MediaMetadata. If permission is denied, clear the URI string set
@@ -15,13 +15,13 @@ the UMO background of the first user.
 Merged-In: I384f8e230c909d8fc8e5f147e2fd3558fec44626
 Change-Id: I384f8e230c909d8fc8e5f147e2fd3558fec44626
 
-Change-Id: I60972dca7020524ccc0a053d18052776aa6b9ce9
+Change-Id: I1109b2112cbd0f9ce119a6ab36f9491bd8a1159b
 ---
  .../server/media/MediaSessionRecord.java      | 52 +++++++++++++++----
  1 file changed, 43 insertions(+), 9 deletions(-)
 
 diff --git a/services/core/java/com/android/server/media/MediaSessionRecord.java b/services/core/java/com/android/server/media/MediaSessionRecord.java
-index e2087e6ca82..5ebbfe92dc2 100644
+index e2087e6ca8225..5ebbfe92dc203 100644
 --- a/services/core/java/com/android/server/media/MediaSessionRecord.java
 +++ b/services/core/java/com/android/server/media/MediaSessionRecord.java
 @@ -17,6 +17,8 @@
@@ -33,7 +33,7 @@ index e2087e6ca82..5ebbfe92dc2 100644
  import android.content.Context;
  import android.content.Intent;
  import android.content.pm.ParceledListSlice;
-@@ -48,11 +50,13 @@ import android.os.Process;
+@@ -48,11 +50,13 @@
  import android.os.RemoteException;
  import android.os.ResultReceiver;
  import android.os.SystemClock;
@@ -47,7 +47,7 @@ index e2087e6ca82..5ebbfe92dc2 100644
  
  import java.io.PrintWriter;
  import java.util.ArrayList;
-@@ -64,6 +68,10 @@ import java.util.List;
+@@ -64,6 +68,10 @@
   */
  public class MediaSessionRecord implements IBinder.DeathRecipient {
      private static final String TAG = "MediaSessionRecord";
@@ -66,7 +66,7 @@ index e2087e6ca82..5ebbfe92dc2 100644
      private final Context mContext;
  
      private final Object mLock = new Object();
-@@ -142,6 +151,7 @@ public class MediaSessionRecord implements IBinder.DeathRecipient {
+@@ -142,6 +151,7 @@ public MediaSessionRecord(int ownerPid, int ownerUid, int userId, String ownerPa
          mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
          mAudioManagerInternal = LocalServices.getService(AudioManagerInternal.class);
          mAudioAttrs = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).build();
@@ -74,7 +74,7 @@ index e2087e6ca82..5ebbfe92dc2 100644
      }
  
      /**
-@@ -870,21 +880,45 @@ public class MediaSessionRecord implements IBinder.DeathRecipient {
+@@ -870,21 +880,45 @@ public void setLaunchPendingIntent(PendingIntent pi) throws RemoteException {
          public void setMetadata(MediaMetadata metadata, long duration, String metadataDescription)
                  throws RemoteException {
              synchronized (mLock) {
@@ -129,6 +129,4 @@ index e2087e6ca82..5ebbfe92dc2 100644
          @Override
          public void setPlaybackState(PlaybackState state) throws RemoteException {
              int oldState = mPlaybackState == null
--- 
-2.34.1
 

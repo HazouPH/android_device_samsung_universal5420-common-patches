@@ -1,4 +1,4 @@
-From 80622b11760f1a98ec3d86ce7f974534795542d4 Mon Sep 17 00:00:00 2001
+From f63bd099fdae39d31d3d04beab8d928c4883bf02 Mon Sep 17 00:00:00 2001
 From: Fraunhofer IIS FDK <audio-fdk@iis.fraunhofer.de>
 Date: Tue, 30 May 2023 16:39:32 +0200
 Subject: [PATCH] Increase patchParam array size by one and fix out-of-bounce
@@ -11,11 +11,11 @@ Test: see POC
 Merged-In: I206973e0bb21140865efffd930e39f920f477359
 Change-Id: I206973e0bb21140865efffd930e39f920f477359
 ---
- libSBRdec/src/lpp_tran.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ libSBRdec/src/lpp_tran.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/libSBRdec/src/lpp_tran.h b/libSBRdec/src/lpp_tran.h
-index 51b4395..6382180 100644
+index 51b4395..21c4101 100644
 --- a/libSBRdec/src/lpp_tran.h
 +++ b/libSBRdec/src/lpp_tran.h
 @@ -1,7 +1,7 @@
@@ -27,16 +27,13 @@ index 51b4395..6382180 100644
  Forschung e.V. All rights reserved.
  
   1.    INTRODUCTION
-@@ -206,8 +206,7 @@ typedef struct {
-   UCHAR bwBorders[MAX_NUM_NOISE_VALUES]; /*!< spectral bands with different
+@@ -207,7 +207,7 @@ typedef struct {
                                              inverse filtering levels */
  
--  PATCH_PARAM
+   PATCH_PARAM
 -  patchParam[MAX_NUM_PATCHES]; /*!< new parameter set for patching */
-+  PATCH_PARAM    patchParam[MAX_NUM_PATCHES + 1]; /*!< new parameter set for patching */
++  patchParam[MAX_NUM_PATCHES + 1]; /*!< new parameter set for patching */
    WHITENING_FACTORS
    whFactors;     /*!< the pole moving factors for certain
                      whitening levels as indicated     in the bitstream
--- 
-2.34.1
 

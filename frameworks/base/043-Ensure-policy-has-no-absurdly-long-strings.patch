@@ -1,7 +1,7 @@
-From 43af391c571cb79e817ff43cbc863756de0132fd Mon Sep 17 00:00:00 2001
+From 769d2c2decc83acf19ed29d2514641f12b0cc4b3 Mon Sep 17 00:00:00 2001
 From: Pavel Grafov <pgrafov@google.com>
 Date: Wed, 5 Apr 2023 15:15:41 +0000
-Subject: [PATCH 1/5] Ensure policy has no absurdly long strings
+Subject: [PATCH] Ensure policy has no absurdly long strings
 
 The following APIs now enforce limits and throw IllegalArgumentException
 when limits are violated:
@@ -31,17 +31,17 @@ Test: atest com.android.server.devicepolicy
 Merged-In: Idcf54e408722f164d16bf2f24a00cd1f5b626d23
 Change-Id: Idcf54e408722f164d16bf2f24a00cd1f5b626d23
 
-Change-Id: If1e128e8c3c6f1e70bc092f92bc34bc5ea2de0f9
+Change-Id: Ibdefa8c95ba534729ce3236826ff4db76ab923e4
 ---
  .../app/admin/DevicePolicyManager.java        |  3 +-
- .../DevicePolicyManagerService.java           | 84 +++++++++++++++++++
- 2 files changed, 86 insertions(+), 1 deletion(-)
+ .../DevicePolicyManagerService.java           | 92 ++++++++++++++++++-
+ 2 files changed, 91 insertions(+), 4 deletions(-)
 
 diff --git a/core/java/android/app/admin/DevicePolicyManager.java b/core/java/android/app/admin/DevicePolicyManager.java
-index 5e263b0d05b..bff9bfdf185 100644
+index 5e263b0d05b6d..bff9bfdf185d3 100644
 --- a/core/java/android/app/admin/DevicePolicyManager.java
 +++ b/core/java/android/app/admin/DevicePolicyManager.java
-@@ -9075,7 +9075,8 @@ public class DevicePolicyManager {
+@@ -9075,7 +9075,8 @@ public CharSequence getShortSupportMessage(@NonNull ComponentName admin) {
  
      /**
       * Called by a device admin to set the long support message. This will be displayed to the user
@@ -52,18 +52,18 @@ index 5e263b0d05b..bff9bfdf185 100644
       * If the long support message needs to be localized, it is the responsibility of the
       * {@link DeviceAdminReceiver} to listen to the {@link Intent#ACTION_LOCALE_CHANGED} broadcast
 diff --git a/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java b/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java
-index b2e23da08e2..ba6c0f0d94e 100644
+index b2e23da08e2d4..56b2cb8f3a0b1 100644
 --- a/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java
 +++ b/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java
-@@ -277,6 +277,7 @@ import java.io.PrintWriter;
- import java.lang.reflect.Constructor;
+@@ -278,6 +278,7 @@
  import java.nio.charset.StandardCharsets;
  import java.text.DateFormat;
-+import java.util.ArrayDeque;
  import java.time.LocalDate;
++import java.util.ArrayDeque;
  import java.util.ArrayList;
  import java.util.Arrays;
-@@ -287,6 +288,7 @@ import java.util.HashMap;
+ import java.util.Collection;
+@@ -287,6 +288,7 @@
  import java.util.List;
  import java.util.Map;
  import java.util.Map.Entry;
@@ -87,7 +87,7 @@ index b2e23da08e2..ba6c0f0d94e 100644
      private static final long MS_PER_DAY = TimeUnit.DAYS.toMillis(1);
  
      private static final long EXPIRATION_GRACE_PERIOD_MS = 5 * MS_PER_DAY; // 5 days, in ms
-@@ -9042,6 +9053,12 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -9042,6 +9053,12 @@ public void setTrustAgentConfiguration(ComponentName admin, ComponentName agent,
          }
          Preconditions.checkNotNull(admin, "admin is null");
          Preconditions.checkNotNull(agent, "agent is null");
@@ -100,7 +100,7 @@ index b2e23da08e2..ba6c0f0d94e 100644
          final int userHandle = UserHandle.getCallingUserId();
          synchronized (getLockObject()) {
              ActiveAdmin ap = getActiveAdminForCallerLocked(admin,
-@@ -9262,6 +9279,10 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -9262,6 +9279,10 @@ public boolean setPermittedAccessibilityServices(ComponentName who, List package
          Preconditions.checkNotNull(who, "ComponentName is null");
  
          if (packageList != null) {
@@ -111,7 +111,7 @@ index b2e23da08e2..ba6c0f0d94e 100644
              int userId = UserHandle.getCallingUserId();
              List<AccessibilityServiceInfo> enabledServices = null;
              long id = mInjector.binderClearCallingIdentity();
-@@ -9450,6 +9471,10 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -9450,6 +9471,10 @@ public boolean setPermittedInputMethods(ComponentName who, List packageList) {
          }
          final int callingUserId = mInjector.userHandleGetCallingUserId();
          if (packageList != null) {
@@ -122,15 +122,16 @@ index b2e23da08e2..ba6c0f0d94e 100644
              List<InputMethodInfo> enabledImes = InputMethodManagerInternal.get()
                      .getEnabledInputMethodListAsUser(callingUserId);
              if (enabledImes != null) {
-@@ -10425,6 +10450,7 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -10424,6 +10449,8 @@ public void setAccountManagementDisabled(ComponentName who, String accountType,
+             return;
          }
          Preconditions.checkNotNull(who, "ComponentName is null");
-         synchronized (getLockObject()) {
 +        enforceMaxStringLength(accountType, "account type");
++
+         synchronized (getLockObject()) {
              ActiveAdmin ap = getActiveAdminForCallerLocked(who,
                      DeviceAdminInfo.USES_POLICY_PROFILE_OWNER);
-             if (disabled) {
-@@ -10709,6 +10735,9 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -10709,6 +10736,9 @@ public void setLockTaskPackages(ComponentName who, String[] packages)
              throws SecurityException {
          Preconditions.checkNotNull(who, "ComponentName is null");
          Preconditions.checkNotNull(packages, "packages is null");
@@ -140,7 +141,7 @@ index b2e23da08e2..ba6c0f0d94e 100644
  
          synchronized (getLockObject()) {
              enforceCanCallLockTaskLocked(who);
-@@ -12223,6 +12252,8 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -12223,6 +12253,8 @@ public void setShortSupportMessage(@NonNull ComponentName who, CharSequence mess
              return;
          }
          Preconditions.checkNotNull(who, "ComponentName is null");
@@ -149,37 +150,52 @@ index b2e23da08e2..ba6c0f0d94e 100644
          final int userHandle = mInjector.userHandleGetCallingUserId();
          synchronized (getLockObject()) {
              ActiveAdmin admin = getActiveAdminForUidLocked(who,
-@@ -12256,6 +12287,9 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -12256,6 +12288,9 @@ public void setLongSupportMessage(@NonNull ComponentName who, CharSequence messa
          if (!mHasFeature) {
              return;
          }
 +
-+		message = truncateIfLonger(message, MAX_LONG_SUPPORT_MESSAGE_LENGTH);
++        message = truncateIfLonger(message, MAX_LONG_SUPPORT_MESSAGE_LENGTH);
 +
          Preconditions.checkNotNull(who, "ComponentName is null");
          final int userHandle = mInjector.userHandleGetCallingUserId();
          synchronized (getLockObject()) {
-@@ -12277,6 +12311,7 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
-         if (!mHasFeature) {
-             return null;
-         }
-+
-         Preconditions.checkNotNull(who, "ComponentName is null");
-         synchronized (getLockObject()) {
-             ActiveAdmin admin = getActiveAdminForUidLocked(who,
-@@ -12393,6 +12428,8 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+@@ -12393,6 +12428,8 @@ public void setOrganizationName(@NonNull ComponentName who, CharSequence text) {
          Preconditions.checkNotNull(who, "ComponentName is null");
          final int userHandle = mInjector.userHandleGetCallingUserId();
  
-+		text = truncateIfLonger(text, MAX_ORG_NAME_LENGTH);
++        text = truncateIfLonger(text, MAX_ORG_NAME_LENGTH);
 +
          synchronized (getLockObject()) {
              ActiveAdmin admin = getActiveAdminForCallerLocked(who,
                      DeviceAdminInfo.USES_POLICY_PROFILE_OWNER);
-@@ -13471,6 +13508,53 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
-         saveSettingsLocked(mOwners.getDeviceOwnerUserId());
-     }
+@@ -12604,9 +12641,8 @@ public void setAffiliationIds(ComponentName admin, List<String> ids) {
+             throw new IllegalArgumentException("ids must not be null");
+         }
+         for (String id : ids) {
+-            if (TextUtils.isEmpty(id)) {
+-                throw new IllegalArgumentException("ids must not contain empty string");
+-            }
++            Preconditions.checkArgument(!TextUtils.isEmpty(id), "ids must not have empty string");
++            enforceMaxStringLength(id, "affiliation id");
+         }
  
+         final Set<String> affiliationIds = new ArraySet<>(ids);
+@@ -13728,6 +13764,9 @@ public void transferOwnership(@NonNull ComponentName admin, @NonNull ComponentNa
+ 
+         Preconditions.checkNotNull(admin, "Admin cannot be null.");
+         Preconditions.checkNotNull(target, "Target cannot be null.");
++        if (bundle != null) {
++            enforceMaxStringLength(bundle, "bundle");
++        }
+ 
+         enforceProfileOrDeviceOwner(admin);
+ 
+@@ -14505,4 +14544,51 @@ private DevicePolicyConstants loadConstants() {
+         return DevicePolicyConstants.loadFromString(
+                 mInjector.settingsGlobalGetString(Global.DEVICE_POLICY_CONSTANTS));
+     }
++
 +    /**
 +     * Truncates char sequence to maximum length, nulls are ignored.
 +     */
@@ -226,10 +242,5 @@ index b2e23da08e2..ba6c0f0d94e 100644
 +            }
 +        }
 +    }
-+
-     /**
-      * Return the package name of owner in a given user.
-      */
--- 
-2.34.1
+ }
 

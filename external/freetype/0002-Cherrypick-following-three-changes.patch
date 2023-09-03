@@ -1,4 +1,4 @@
-From ae6ecb5ca40c6123bf306e5ca5b51fd65186e10b Mon Sep 17 00:00:00 2001
+From 0f5ef174ed098c2bf4244073406897023c702cb6 Mon Sep 17 00:00:00 2001
 From: Seigo Nonaka <nona@google.com>
 Date: Tue, 2 May 2023 10:01:38 +0900
 Subject: [PATCH] Cherrypick following three changes
@@ -384,6 +384,4 @@ index dcff3f7a0..99895794a 100644
  
  
    /**************************************************************************
--- 
-2.34.1
 
